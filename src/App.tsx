@@ -1,98 +1,162 @@
-import React, { useState, useEffect } from 'react';
-import { useInView } from 'react-intersection-observer';
+import { useState, useEffect } from 'react';
+import { GlassStyle, imageWidth, PASTEL_COLORS } from './utils/styles';
+import Picsum from './pages/Picsum';
+import type { ImageData } from './interface/page';
+import { getRandomTags } from './utils/tag';
+import { IconRefresh, IconTag } from './utils/icon';
+import Filckr from './pages/Flickr';
+import Marsonry from './component/imageMasonry';
 
-interface ImageData {
-  id: string;
-  url: string;
-}
+type SouceData = "lorem" | "picsum" | "placeholder"
 
 export default function App() {
   const [images, setImages] = useState<ImageData[]>([]);
-  const [page, setPage] = useState<number>(1);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean | 'force'>(false);
 
-  const { ref, inView } = useInView({
-    threshold: 0.5,
-  });
+  const [Source, setSource] = useState<SouceData>("placeholder");
+  const [selectTag, setSelectTag] = useState<string>()
 
-  const fetchMoreImages = () => {
+  useEffect(() => {
+    handleFetch()
+    if (selectTag) {
+      setSelectTag(undefined)
+    }
+  }, [Source]);
+
+
+  function handleFetch() {
+    if (Source == "placeholder") {
+      getPlaceholderImages()
+    } else {
+      setLoading(true)
+    }
+  }
+
+  const getPlaceholderImages = () => {
     if (loading) return;
     setLoading(true);
 
-    const newImages: ImageData[] = Array.from({ length: 15 }).map((_, index) => {
-      const id = `${page}-${index}-${Math.random()}`;
-      // สุ่มความสูงระหว่าง 300px ถึง 600px เพื่อให้เกิดเอฟเฟกต์ Masonry
-      const randomWidth = 400;
-      const randomHeight = Math.floor(Math.random() * (600 - 300 + 1)) + 300;
+    const newImages: ImageData[] = Array.from({ length: 15 }).map(() => {
+      const randomSeed = Math.floor(Math.random() * 1000000);
+      const randomHeight = Math.floor(Math.random() * 300) + 250;
+
+      const tags = getRandomTags();
+      const primaryTag = tags[0];
+
+      const colorPair = PASTEL_COLORS[Math.floor(Math.random() * PASTEL_COLORS.length)];
+      const placeholderUrl = `https://placehold.co/${imageWidth}x${randomHeight}/${colorPair.bg}/${colorPair.text}?text=${primaryTag}`;
 
       return {
-        id,
-        // url: `https://picsum.photos{randomWidth}/${randomHeight}?random=${id}`
-        url: `https://picsum.photos/id/${id}/${randomWidth}/${randomHeight}`
+        id: `${randomSeed}`,
+        url: placeholderUrl,
+        tags: tags,
+        hidden: false
       };
+
     });
 
     setTimeout(() => {
-      setImages((prev) => [...prev, ...newImages]);
-      setPage((prev) => prev + 1);
+      setImages((prev) => [...prev, ...newImages])
       setLoading(false);
-    }, 800);
+    }, 400);
   };
 
-  useEffect(() => {
-    fetchMoreImages();
-  }, []);
-
-  useEffect(() => {
-    if (inView) {
-      fetchMoreImages();
+  const handleRefresh = () => {
+    if (Source === "placeholder") {
+      setImages([]);
+    } else {
+      setLoading('force')
     }
-  }, [inView]);
+    setSelectTag(undefined)
+  };
+
+  function handleClickImage(image: ImageData) {
+    if (Source === "placeholder") {
+      setSelectTag(image.tags?.[0])
+    }
+  }
+  useEffect(() => {
+    if (Source != "placeholder") return
+    setImages(prev => {
+      if (!selectTag?.length) return prev.map(el => ({ ...el, hidden: false }))
+      return prev.map(el => ({ ...el, hidden: el.tags?.[0] == selectTag ? false : true }))
+    })
+  }, [selectTag])
 
   return (
     <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
       <h1 style={{ textAlign: 'center', marginBottom: '30px' }}>
-        📸 Gallery สุ่มภาพคละขนาด (Lazy Load)
+        Gallery
       </h1>
 
-      {/* 3. สไตล์ CSS สำหรับจัดวางแกลเลอรีแบบ Masonry Layout */}
-      <div style={{
-        columnCount: window.innerWidth > 1024 ? 4 : window.innerWidth > 768 ? 3 : 2,
-        columnGap: '15px',
-        width: '100%',
-        maxWidth: '1200px',
-        margin: '0 auto'
-      }}>
-        {images.map((image) => (
-          <div key={image.id} style={{
-            breakInside: 'avoid',
-            marginBottom: '15px',
-            backgroundColor: '#f0f0f0',
-            borderRadius: '10px',
-            overflow: 'hidden',
-            boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-          }}>
-            <img
-              src={image.url}
-              alt="Random Dynamic"
-              loading="lazy" // เปิดฟีเจอร์ Native Lazy Loading ของ Browser ไปด้วย
-              style={{
-                width: '100%',
-                display: 'block',
-                height: 'auto',
-                transition: 'transform 0.3s ease'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.03)'}
-              onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-            />
-          </div>
-        ))}
-      </div>
+      <section style={{ display: 'flex', flexWrap: 'wrap', gap: '1em', alignItems: 'center' }}>
+        <div style={{ alignSelf: 'center' }}>
+          <select name="source" id="source-image"
+            onChange={e => setSource(e.target.value as SouceData)}
+            style={{ minWidth: '6em', minHeight: '2.5em', }}
+            value={Source}
+          >
+            <option value="lorem">Loremflickr</option>
+            <option value="picsum">Picsum</option>
+            <option value="placeholder">Placeholder</option>
+          </select>
+        </div>
+        <button style={{ fontSize: 'small', minWidth: '5em', gap: 3, display: 'flex', padding: '.5em', borderRadius: '.5em' }}
+          onClick={() => handleRefresh()}>
+          <IconRefresh />
+          Refresh
+        </button>
 
-      {/* 4. กล่องตรวจจับตำแหน่งเพื่อเปิดการ Lazy Load ชุดถัดไป */}
-      <div ref={ref} style={{ height: '100px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px' }}>
-        {loading && <p style={{ fontSize: '18px', color: '#666' }}>⏳ กำลังโหลดรูปภาพเพิ่ม...</p>}
-      </div>
-    </div>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
+          <button style={{ ...GlassStyle, fontSize: 'small', minWidth: '5em', display: 'flex', alignItems: 'center', marginLeft: 'auto', gap: 5 }}>
+            <IconTag />
+            {selectTag || (Source == "picsum" ? 'ไม่รองรับ' : 'ทั้งหมด')}
+          </button>
+          {selectTag &&
+            <button data-type="danger"
+              style={{ height: 'fit-content', padding: '.5em', borderRadius: '50%', border: 'none', }}
+              onClick={() => setSelectTag(undefined)}>
+              <svg
+                xmlns="http://w3.org"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ width: '14px', height: '14px' }}
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          }
+        </div>
+      </section>
+      
+      {Source === "placeholder"
+        ? <Marsonry
+          images={images}
+          loading={loading}
+          onCallFetch={getPlaceholderImages}
+          handleClickImage={handleClickImage}
+          selectTag={selectTag}
+        />
+        : Source === "picsum"
+          ? (
+            <Picsum
+              loading={loading}
+              setLoading={setLoading}
+            />
+          ) : (
+            <Filckr
+              loading={loading}
+              setLoading={setLoading}
+              selectTag={selectTag}
+              setSelectTag={setSelectTag}
+            />
+          )
+      }
+    </div >
   );
 }

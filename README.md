@@ -1,78 +1,32 @@
-# React + TypeScript + Vite
+# Interactive Masonry Image Gallery
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+เว็บเพจแสดงคลังภาพแกเลอรีสไตล์ Masonry Layout พร้อมกรองแท็กคำสำคัญ
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features (คุณสมบัติของระบบ)
 
-## React Compiler
+1. **Masonry Layout:** จัดวางรูปภาพที่มีความสูงไม่เท่ากันให้ชิดกัน จากซ้ายไปขวา 
+2. **Infinite Scroll :** โหลดข้อมูลอัตโนมัติ เมื่อผู้ใช้เลื่อนหน้าจอลงมาด้านล่างสุด ระบบจะเรียกฟังก์ชันดึงข้อมูลเพิ่มให้ทันทีเพื่อแสดงภาพถัดไป
+3. **Hashtag & Filtering System:**
+   - รูปภาพแต่ละรูปสามารถมีคำสำคัญ (Keywords / Hashtags) ได้ไม่จำกัดจำนวน
+   - เมื่อกดที่ Hashtag ใดๆ ระบบจะทำการกรอง (Filter) หน้าจอเพื่อแสดงเฉพาะรูปภาพที่มีคำสำคัญนั้นทันที
+4. **Multi-Source Images:** รองรับการดึงรูปภาพจำลองและรูปภาพสุ่มคุณภาพสูง เช่น [Placehold.co](https://placehold.co), [Picsum Photos](https://picsum.photos), และ [Flickr](https://loremflickr.com).
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
 
-Note: This will impact Vite dev & build performances.
-You can also try [the experimental native React Compiler support in plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md#rust-react-compiler) by using `compiler: true` in the plugin options instead of using the Babel plugin.
+---
 
-## Expanding the ESLint configuration
+## Getting Started (วิธีเปิดใช้งานในเครื่อง)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+### 1. Install Dependencies
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+### 2. Run Development Server
+```bash
+npm run dev
 ```
+เปิดบราวเซอร์ไปที่ลิงก์ (เช่น `http://localhost:5173`) เพื่อทดสอบการทำงาน
+
+

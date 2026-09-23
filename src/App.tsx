@@ -3,17 +3,17 @@ import { GlassStyle, imageWidth, PASTEL_COLORS } from './utils/styles';
 import Picsum from './pages/Picsum';
 import type { ImageData } from './interface/page';
 import { getRandomTags } from './utils/tag';
-import { IconRefresh, IconTag } from './utils/icon';
+import { IconClose, IconRefresh, IconTag } from './utils/icon';
 import Filckr from './pages/Flickr';
 import Marsonry from './component/imageMasonry';
 
-type SouceData = "lorem" | "picsum" | "placeholder"
+type SouceData = "lorem" | "picsum" | "placehold"
 
 export default function App() {
   const [images, setImages] = useState<ImageData[]>([]);
   const [loading, setLoading] = useState<boolean | 'force'>(false);
 
-  const [Source, setSource] = useState<SouceData>("placeholder");
+  const [Source, setSource] = useState<SouceData>("placehold");
   const [selectTag, setSelectTag] = useState<string>()
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export default function App() {
 
 
   function handleFetch() {
-    if (Source == "placeholder") {
+    if (Source == "placehold") {
       getPlaceholderImages()
     } else {
       setLoading(true)
@@ -62,7 +62,7 @@ export default function App() {
   };
 
   const handleRefresh = () => {
-    if (Source === "placeholder") {
+    if (Source === "placehold") {
       setImages([]);
     } else {
       setLoading('force')
@@ -71,12 +71,12 @@ export default function App() {
   };
 
   function handleClickImage(image: ImageData) {
-    if (Source === "placeholder") {
+    if (Source === "placehold") {
       setSelectTag(image.tags?.[0])
     }
   }
   useEffect(() => {
-    if (Source != "placeholder") return
+    if (Source != "placehold") return
     setImages(prev => {
       if (!selectTag?.length) return prev.map(el => ({ ...el, hidden: false }))
       return prev.map(el => ({ ...el, hidden: el.tags?.[0] == selectTag ? false : true }))
@@ -89,7 +89,7 @@ export default function App() {
         Gallery
       </h1>
 
-      <section style={{ display: 'flex', flexWrap: 'wrap', gap: '1em', alignItems: 'center' }}>
+      <section style={{ display: 'flex', flexWrap: 'wrap', gap: '1em', alignItems: 'center', marginBottom: 5 }}>
         <div style={{ alignSelf: 'center' }}>
           <select name="source" id="source-image"
             onChange={e => setSource(e.target.value as SouceData)}
@@ -98,43 +98,33 @@ export default function App() {
           >
             <option value="lorem">Loremflickr</option>
             <option value="picsum">Picsum</option>
-            <option value="placeholder">Placeholder</option>
+            <option value="placehold">Placehold</option>
           </select>
         </div>
-        <button style={{ fontSize: 'small', minWidth: '5em', gap: 3, display: 'flex', padding: '.5em', borderRadius: '.5em' }}
+        <button style={{ fontSize: 'small', minWidth: '5em', gap: 3, display: 'flex', padding: '.5em', borderRadius: '.5em', background: 'none' }}
           onClick={() => handleRefresh()}>
           <IconRefresh />
           Refresh
         </button>
 
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
-          <button style={{ ...GlassStyle, fontSize: 'small', minWidth: '5em', display: 'flex', alignItems: 'center', marginLeft: 'auto', gap: 5 }}>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 4, alignItems: 'center' }}>
+          <div style={{ ...GlassStyle, fontSize: 'small', minWidth: '5em', display: 'flex', alignItems: 'center', marginLeft: 'auto', gap: 5, cursor: 'default',
+            background: selectTag ? '#f69a2b30' : ''
+           }}>
             <IconTag />
             {selectTag || (Source == "picsum" ? 'ไม่รองรับ' : 'ทั้งหมด')}
-          </button>
+          </div>
           {selectTag &&
             <button data-type="danger"
-              style={{ height: 'fit-content', padding: '.5em', borderRadius: '50%', border: 'none', }}
+              style={{ height: 'fit-content', padding: '.5em', borderRadius: '50%', border: 'none', background: 'none' }}
               onClick={() => setSelectTag(undefined)}>
-              <svg
-                xmlns="http://w3.org"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                style={{ width: '14px', height: '14px' }}
-              >
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
+              <IconClose />
             </button>
           }
         </div>
       </section>
-      
-      {Source === "placeholder"
+
+      {Source === "placehold"
         ? <Marsonry
           images={images}
           loading={loading}

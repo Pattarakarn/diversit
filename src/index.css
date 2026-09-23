@@ -105,6 +105,9 @@ button[data-type="danger"]:hover {
 
 button {
   cursor: pointer;
+  &:hover {
+    color: #f69a2b;
+  }
 }
 
 .tag {

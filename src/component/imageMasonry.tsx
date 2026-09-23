@@ -94,7 +94,19 @@ function CardItem({ image, handleClickImage, handleClickTag }: {
                     display: 'block',
                     height: 'auto',
                     borderRadius: isHovered ? '0px' : '10px',
-                    transition: 'transform 0.3s ease, border-radius 0.3s ease',
+                    transition: 'opacity 2s ease-in-out, transform 0.3s ease',
+                    opacity: image?.tags?.length ? 0 : 1,
+                }}
+                onMouseOver={(e) => {
+                    if (image?.tags) return
+                    e.currentTarget.style.transform = 'scale(1.03)'
+                }}
+                onMouseOut={(e) => {
+                    if (image?.tags) return
+                    e.currentTarget.style.transform = 'scale(1)'
+                }}
+                onLoad={(e) => {
+                    e.currentTarget.style.opacity = '1';
                 }}
             />
             {handleClickTag &&

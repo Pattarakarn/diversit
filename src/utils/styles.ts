@@ -9,7 +9,6 @@ export const GlassStyle: React.CSSProperties = {
     boxShadow: '0 10px 30px 0 rgba(0, 0, 0, 0.05)',
     padding: '5px 10px',
     breakInside: 'avoid',
-    marginBottom: '20px',
     overflow: 'hidden'
 };
 
